@@ -1,0 +1,375 @@
+package application;
+
+import java.io.IOException;
+import java.net.URI;
+import java.net.http.*;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+
+import com.google.gson.Gson;
+
+import javafx.event.ActionEvent;
+import javafx.fxml.FXML;
+import javafx.geometry.Insets;
+import javafx.geometry.Pos;
+import javafx.scene.Scene;
+import javafx.scene.control.Button;
+import javafx.scene.control.DatePicker;
+import javafx.scene.control.Label;
+import javafx.scene.control.TextArea;
+import javafx.scene.control.TextField;
+import javafx.scene.control.TitledPane;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
+import javafx.scene.layout.GridPane;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.Pane;
+import javafx.scene.layout.VBox;
+import javafx.scene.text.Font;
+import javafx.scene.text.Text;
+import javafx.stage.Stage;
+
+public class Controller {
+	
+	@FXML
+	private GridPane Grid;
+	
+	@FXML
+	private Text PageText;
+	
+	@FXML
+	private Button PrevPageButton;
+	
+	@FXML
+	private Button NextPageButton;
+	
+	private static final HttpClient httpClient = HttpClient.newBuilder().build();
+	
+	Stage ItemDetailsStage;
+	Integer TotalPages = 0;
+	Integer Page = 0;
+	Glasses[] AllGlasses;
+	
+	
+	// Constructor
+	public Controller() {
+		
+	}
+	
+	
+	// Initialized - called after the FXML properties have been set
+	@FXML
+	public void initialize() {
+		HttpRequest request = HttpRequest.newBuilder()
+        .GET()
+        .uri(URI.create("http://localhost:3000/"))
+        .build();
+
+        HttpResponse<String> response;
+		try {
+			response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+			
+			Gson gson = new Gson();
+			AllGlasses = gson.fromJson(response.body(), Glasses[].class);
+			
+			TotalPages = (int) Math.ceil(AllGlasses.length / 10.0);
+			
+			if (TotalPages >= 2) {
+				NextPageButton.setDisable(false);
+			}
+	        
+			UpdateGrid();
+
+		} catch (IOException | InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+	
+	
+	// Update Grid
+	public void UpdateGrid() {
+		
+		Grid.getChildren().clear();
+		
+		Integer count = 0;
+        Integer row = 0;
+        Integer col = 0;
+        
+
+        // Loop through all of the glasses
+        for (int i = 0; i < AllGlasses.length; i++) {
+        	
+        	// If we've already created more than 10 items, stop
+        	if (count > 9) break;
+        	
+        	count++;
+        	
+        	int Index = i + Page * 10;
+        	
+        	if (Index > AllGlasses.length) break;
+        	
+        	VBox vbox = new VBox();
+        	
+    		Image image = new Image(AllGlasses[Index].Image + ".jpg");
+    		ImageView imageView  = new ImageView();
+    		imageView.setImage(image);
+    		imageView.setPreserveRatio(true);
+    		imageView.setFitWidth(150);
+    		imageView.setFitHeight(150);
+    		
+    		Button button = new Button();
+    		button.setText(AllGlasses[Index].Name);
+    		button.setMaxWidth(Integer.MAX_VALUE);
+    		button.setId(String.valueOf(Index));
+    		button.setOnAction(e -> ShowItemDetails(e));
+    		
+    		vbox.getChildren().add(imageView);
+    		vbox.getChildren().add(button);
+
+    		Grid.add(vbox, col, row);
+    		
+    		if (col == 4) {
+    			row++;
+    			col = 0;
+    		} else {
+    			col++;
+    		}
+    		
+        }
+	}
+	
+	
+	// Pagination
+	public void PrevPage() {
+		Page--;
+		PageText.setText("Page " + String.valueOf(Page + 1));
+		NextPageButton.setDisable(false);
+
+		UpdateGrid();
+		
+		if (Page == 0) {
+			PrevPageButton.setDisable(true);
+		}
+	}
+	
+	// Pagination
+	public void NextPage() {
+		Page++;
+		PageText.setText("Page " + String.valueOf(Page + 1));
+		PrevPageButton.setDisable(false);
+
+		UpdateGrid();
+		
+		if (Page == TotalPages - 1) {
+			NextPageButton.setDisable(true);
+		}
+	}
+	
+	
+	// Show Item Details
+	@FXML
+	public void ShowItemDetails(ActionEvent e) {
+		
+		if (ItemDetailsStage != null) {
+			ItemDetailsStage.close();
+		}
+		
+		
+		// Dynamically pass in the index of the item clicked
+		Glasses Item = AllGlasses[Integer.parseInt(((Button)e.getSource()).getId())];
+		
+		// ImageView
+		Image image = new Image(Item.Image + ".jpg");
+		ImageView imageView = new ImageView();
+		imageView.setImage(image);
+		imageView.setFitWidth(200);
+		imageView.setFitHeight(200);
+		
+		
+		// Buttons
+		Button update = new Button();
+		Button delete = new Button();
+		
+		
+		// Containers
+		VBox Main 				= new VBox();
+		VBox Keys 				= new VBox();
+		VBox Values				= new VBox();
+		HBox Container			= new HBox();
+		
+		
+		// Labels
+		Label name 				= new Label();
+		Label price 			= new Label();
+		Label size 				= new Label();
+		Label colour 			= new Label();
+		Label weight 			= new Label();
+		Label material 			= new Label();
+		Label shape 			= new Label();
+		Label manufacturer 		= new Label();
+		Label startingDate 		= new Label();
+		Label endingDate 		= new Label();
+		Label description 		= new Label();
+		
+		
+		
+		// Texts
+		TextField nameValue				= new TextField();
+		TextField priceValue 			= new TextField();
+		TextField sizeValue 			= new TextField();
+		TextField colourValue 			= new TextField();
+		TextField weightValue 			= new TextField();
+		TextField materialValue 		= new TextField();
+		TextField shapeValue 			= new TextField();
+		TextField manufacturerValue 	= new TextField();
+		DatePicker startingDateValue 	= new DatePicker();
+		DatePicker endingDateValue 		= new DatePicker();
+		TextArea descriptionValue 		= new TextArea();
+		
+		
+		// Sizing
+		update.setPrefWidth(200);
+		delete.setPrefWidth(200);
+		
+		nameValue.setFont(Font.font(12.5));
+		priceValue.setFont(Font.font(12.5));
+		sizeValue.setFont(Font.font(12.5));
+		colourValue.setFont(Font.font(12.5));
+		weightValue.setFont(Font.font(12.5));
+		materialValue.setFont(Font.font(12.5));
+		shapeValue.setFont(Font.font(12.5));
+		manufacturerValue.setFont(Font.font(12.5));
+		descriptionValue.setFont(Font.font(12.5));
+		
+		descriptionValue.setMaxSize(174, 110);
+		descriptionValue.setWrapText(true);
+		
+		// Set Alignments
+		Keys.setAlignment(Pos.TOP_RIGHT);
+
+		HBox.setMargin(Main, new Insets(20, 0, 0, 20));
+		HBox.setMargin(Keys, new Insets(20, 10, 0, 30));
+		HBox.setMargin(Values, new Insets(20, 0, 0, 10));
+		
+		VBox.setMargin(name, new Insets(5, 0, 0, 0));
+		VBox.setMargin(price, new Insets(9, 0, 0, 0));
+		VBox.setMargin(size, new Insets(10, 0, 0, 0));
+		VBox.setMargin(colour, new Insets(10, 0, 0, 0));
+		VBox.setMargin(weight, new Insets(11, 0, 0, 0));
+		VBox.setMargin(material, new Insets(10, 0, 0, 0));
+		VBox.setMargin(shape, new Insets(9, 0, 0, 0));
+		VBox.setMargin(manufacturer, new Insets(10, 0, 0, 0));
+		VBox.setMargin(startingDate, new Insets(9, 0, 0, 0));
+		VBox.setMargin(endingDate, new Insets(9, 0, 0, 0));
+		VBox.setMargin(description, new Insets(8, 0, 0, 0));
+
+		
+		
+		// Set Buttons
+		update.setText("Update");
+		delete.setText("Delete");
+		
+
+		
+		
+		// Set Keys
+		name.setText("Name");
+		price.setText("Price");
+		size.setText("Size");
+		colour.setText("Colour");
+		weight.setText("Weight");
+		material.setText("Material");
+		shape.setText("Shape");
+		manufacturer.setText("Manufacturer");
+		startingDate.setText("Starting Date Available");
+		endingDate.setText("Ending Date Available");
+		description.setText("Description");
+		
+		
+		
+		// Set Values
+		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+		
+		nameValue.setText(Item.Name);
+		priceValue.setText(String.valueOf(Item.Price));
+		sizeValue.setText(Item.Size);
+		colourValue.setText(Item.Colour);
+		weightValue.setText(Item.Weight);
+		materialValue.setText(Item.Material);
+		shapeValue.setText(Item.Shape);
+		manufacturerValue.setText(Item.Produced_By);
+		startingDateValue.setValue(LocalDate.parse(Item.StartingDateAvailable, formatter));
+		endingDateValue.setValue(LocalDate.parse(Item.EndingDateAvailable, formatter));
+		descriptionValue.setText("Made with love - Hope is a classically rectangular frame that's fit for any face shape or size, with a feel good hue that's sure to give anyone an instant mood boost.");
+		
+		
+		// Add children
+		Main.getChildren().add(imageView);
+		Main.getChildren().add(update);
+		Main.getChildren().add(delete);
+		
+		
+		Keys.getChildren().add(name);
+		Keys.getChildren().add(price);
+		Keys.getChildren().add(size);
+		Keys.getChildren().add(colour);
+		Keys.getChildren().add(weight);
+		Keys.getChildren().add(material);
+		Keys.getChildren().add(shape);
+		Keys.getChildren().add(manufacturer);
+		Keys.getChildren().add(startingDate);
+		Keys.getChildren().add(endingDate);
+		Keys.getChildren().add(description);
+		
+
+		Values.getChildren().add(nameValue);
+		Values.getChildren().add(priceValue);
+		Values.getChildren().add(sizeValue);
+		Values.getChildren().add(colourValue);
+		Values.getChildren().add(weightValue);
+		Values.getChildren().add(materialValue);
+		Values.getChildren().add(shapeValue);
+		Values.getChildren().add(manufacturerValue);
+		Values.getChildren().add(startingDateValue);
+		Values.getChildren().add(endingDateValue);
+		Values.getChildren().add(descriptionValue);
+		
+		
+		Container.getChildren().add(Main);
+		Container.getChildren().add(Keys);
+		Container.getChildren().add(Values);
+		
+		
+		// Create scene / stage and show
+		ItemDetailsStage = new Stage();
+		ItemDetailsStage.setScene(new Scene(Container, 585, 420));
+		ItemDetailsStage.show();
+		
+		
+		
+		
+		// Bind Actions
+		update.setOnAction(event -> {
+			System.out.println(nameValue.getText());
+		});
+		
+		
+		delete.setOnAction(event -> {
+			HttpRequest request = HttpRequest.newBuilder()
+	        .DELETE()
+	        .uri(URI.create("http://localhost:3002/Products/" + Item._id))
+	        .build();
+			
+			try {
+				HttpResponse<String> response = HttpClient.newBuilder()
+				.build()
+				.send(request, HttpResponse.BodyHandlers.ofString());
+				
+				System.out.println(response);
+			} catch (IOException | InterruptedException e1) {
+				e1.printStackTrace();
+			}
+		});
+	}
+}

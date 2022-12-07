@@ -1,0 +1,6 @@
+package application;
+
+public class MessageResponse {
+	public boolean Success;
+	public String Message;
+}

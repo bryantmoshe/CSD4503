@@ -1,0 +1,9 @@
+module CSD4503 {
+	requires javafx.controls;
+	requires javafx.graphics;
+	requires javafx.fxml;
+	requires com.google.gson;
+	requires unirest.java;
+	
+	opens application to javafx.graphics, javafx.fxml;
+}

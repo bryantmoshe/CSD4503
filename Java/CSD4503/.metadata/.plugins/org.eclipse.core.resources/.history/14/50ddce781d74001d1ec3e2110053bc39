@@ -1,0 +1,19 @@
+package application;
+
+public class Glasses {
+	public String _id;
+	public String Name;
+	public float Price;
+	public String Size;
+	public String Colour;
+	public String Weight;
+	public String Material;
+	public String Shape;
+	public String StartingDateAvailable;
+	public String EndingDateAvaialble;
+	public String Image;
+	public String Description;
+	public boolean Premium_Brand;
+	public Number Sale_Price;
+	public String Produced_By;
+}

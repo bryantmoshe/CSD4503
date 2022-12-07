@@ -1,0 +1,25 @@
+package application;
+
+public class Glasses {
+	String _id;
+	String Name;
+	float Price;
+	String Size;
+	String Colour;
+	String Weight;
+	String Material;
+	String Manufacturer;
+	String Shape;
+	String StartingDateAvailable;
+	String EndingDateAvaialble;
+	String Image;
+	String Description;
+	boolean Premium_Brand;
+	Number Sale_Price;
+	String Produced_By;
+	
+	@Override
+	public String toString() {
+		return _id + " " + Name;
+	}
+}

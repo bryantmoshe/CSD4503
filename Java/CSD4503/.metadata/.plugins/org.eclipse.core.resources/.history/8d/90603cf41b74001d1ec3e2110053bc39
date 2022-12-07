@@ -1,0 +1,37 @@
+package application;
+
+public class Glasses {
+	
+	String id;
+	String Name;
+	float Price;
+	String Size;
+	String Colour;
+	String Weight;
+	String Material;
+	String Shape;
+	String StartingDateAvailable;
+	String EndingDateAvaialble;
+	String Image;
+	String Description;
+	boolean Premium_Brand;
+	Number Sale_Price;
+	String Produced_By;
+	
+    "_id": "63850a7ffdb3ec6b2c5d13ae",
+    "Name": "Algorithm",
+    "Price": 110,
+    "Size": "Large",
+    "Colour": "Black",
+    "Weight": "Lightweight(14g)",
+    "Material": "Metal",
+    "Shape": "Rectangle",
+    "StartingDateAvailable": "2022-12-18",
+    "EndingDateAvailable": "2022-12-26",
+    "Image": "Algorithm",
+    "Description": "Thin and smart metal frame with thoughtful details.",
+    "Premium_Brand": true,
+    "Sale_Price": 88,
+    "Produced_By": "Essilor"
+
+}
